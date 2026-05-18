@@ -8,6 +8,9 @@ This tool generates a complete set of project-local helper scripts in seconds, f
 
 ---
 
+<img width="1147" height="985" alt="Screenshot" src="https://github.com/user-attachments/assets/6ce523c6-d8b3-4fd8-af82-c174a084d19f" />
+
+
 ## What it generates
 
 For every project, `venv-bat-gen` writes up to **12 scripts** (`.bat` for Windows, `.sh` for POSIX):
