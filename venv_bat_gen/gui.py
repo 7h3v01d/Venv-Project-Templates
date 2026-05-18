@@ -631,6 +631,7 @@ class App(QWidget):
         self._chk_test_bat     = QCheckBox("Include test.bat  (pytest runner)")
         self._chk_uv           = QCheckBox("Use uv  (faster installs)")
         self._chk_posix        = QCheckBox("Generate POSIX .sh scripts")
+        self._chk_setup        = QCheckBox("Include setup script")
 
         grid.addWidget(self._chk_overwrite,    0, 0)
         grid.addWidget(self._chk_requirements, 0, 1)
@@ -640,6 +641,7 @@ class App(QWidget):
         grid.addWidget(self._chk_test_bat,     2, 1)
         grid.addWidget(self._chk_uv,           3, 0)
         grid.addWidget(self._chk_posix,        3, 1)
+        grid.addWidget(self._chk_setup,        4, 0)
 
         # uv checkbox updates the "Create .venv" label to clarify which tool
         self._chk_uv.toggled.connect(self._on_uv_toggled)
@@ -699,8 +701,8 @@ class App(QWidget):
         layout.addWidget(self._preview_tabs, stretch=1)
 
         self._preview_editors: dict[str, QPlainTextEdit] = {}
-        for name in ("run.bat", "pip.bat", "shell.bat", "sync.bat", "doctor.bat", "test.bat",
-                     "run.sh",  "pip.sh",  "shell.sh",  "sync.sh",  "doctor.sh",  "test.sh"):
+        for name in ("run.bat", "pip.bat", "shell.bat", "sync.bat", "doctor.bat", "test.bat", "setup.bat",
+                     "run.sh",  "pip.sh",  "shell.sh",  "sync.sh",  "doctor.sh",  "test.sh",  "setup.sh"):
             editor = QPlainTextEdit()
             editor.setReadOnly(True)
             if name.endswith(".sh"):
@@ -795,6 +797,7 @@ class App(QWidget):
             include_test_bat=self._chk_test_bat.isChecked(),
             use_uv=self._chk_uv.isChecked(),
             include_posix=self._chk_posix.isChecked(),
+            include_setup=self._chk_setup.isChecked(),
         )
 
     # ------------------------------------------------------------------
@@ -842,6 +845,7 @@ class App(QWidget):
             "include_test_bat":        self._chk_test_bat.isChecked(),
             "use_uv":                  self._chk_uv.isChecked(),
             "include_posix":           self._chk_posix.isChecked(),
+            "include_setup":           self._chk_setup.isChecked(),
         }
         self._presets.save(name, data)
         self._reload_preset_combo(select=name)
@@ -885,6 +889,7 @@ class App(QWidget):
         if "include_test_bat"       in data: self._chk_test_bat.setChecked(data["include_test_bat"])
         if "use_uv"                 in data: self._chk_uv.setChecked(data["use_uv"])
         if "include_posix"          in data: self._chk_posix.setChecked(data["include_posix"])
+        if "include_setup"          in data: self._chk_setup.setChecked(data["include_setup"])
 
     def _reload_preset_combo(self, select: str | None = None) -> None:
         self._preset_combo.blockSignals(True)
@@ -1024,6 +1029,8 @@ class App(QWidget):
                     placeholder = (
                         "(not included — enable 'Include test.bat' to preview)"
                         if "test" in name
+                        else "(not included — enable 'Include setup script' to preview)"
+                        if "setup" in name
                         else "(not included — enable 'Generate POSIX .sh scripts' to preview)"
                         if name.endswith(".sh")
                         else ""
@@ -1035,6 +1042,7 @@ class App(QWidget):
             tags = []
             if cfg.use_uv:         tags.append("uv")
             if cfg.include_posix:  tags.append("posix")
+            if cfg.include_setup:  tags.append("setup")
             tag_str = "  [" + ", ".join(tags) + "]" if tags else ""
             self._status(f"Preview updated — {cfg.project_name}  [{detail}]{tag_str}")
         except ValueError as exc:

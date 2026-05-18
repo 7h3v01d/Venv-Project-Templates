@@ -106,6 +106,8 @@ def _build_generate_parser(sub) -> argparse.ArgumentParser:
                    help="Use uv instead of pip in generated scripts.")
     p.add_argument("--posix",          action="store_true",
                    help="Also generate POSIX .sh equivalents of all scripts.")
+    p.add_argument("--setup",          action="store_true",
+                   help="Include setup.bat / setup.sh bootstrap script.")
 
     p.add_argument("--no-detect", action="store_true",
                    help="Skip folder auto-detection.")
@@ -189,6 +191,11 @@ def _cmd_generate(args: argparse.Namespace) -> int:
         preset_data, "include_posix",
         scan.suggested_use_posix if scan else False,
     )
+    include_setup    = _resolve_flag(
+        args.setup,
+        preset_data, "include_setup",
+        False,
+    )
 
     # --- Validate ---
     if entry_mode in ("module", "runner"):
@@ -214,6 +221,7 @@ def _cmd_generate(args: argparse.Namespace) -> int:
         include_test_bat=include_test_bat,
         use_uv=use_uv,
         include_posix=include_posix,
+        include_setup=include_setup,
     )
 
     # --- Summary ---
@@ -226,6 +234,7 @@ def _cmd_generate(args: argparse.Namespace) -> int:
     flags = []
     if use_uv:           flags.append("uv")
     if include_posix:    flags.append("posix")
+    if include_setup:    flags.append("setup")
     if overwrite:        flags.append("overwrite")
     if create_req:       flags.append("requirements.txt")
     if webengine:        flags.append("webengine-check")
@@ -379,7 +388,7 @@ def main() -> None:
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--version", action="version", version="venv-bat-gen 3.2.0 (KeystoneAI)")
+    parser.add_argument("--version", action="version", version="venv-bat-gen 3.3.0 (KeystoneAI)")
 
     sub = parser.add_subparsers(dest="subcommand", metavar="<subcommand>")
     sub.required = True
